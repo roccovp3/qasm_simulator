@@ -1,7 +1,8 @@
 //this is a comment
 this a;
-command g;
+instr g;
+u(pi/2, pi/4, 0) q[0];
 //comment
-command g; //com f
+instr g; //com f
 tes//t h; //bad line
 test efgh;

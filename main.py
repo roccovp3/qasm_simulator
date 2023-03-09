@@ -10,6 +10,8 @@ CREGS_ALL_SHOTS = {}
 def main():
     shots = 1024 #hard coded for now, will be a user input later
     for shot in range(shots):
+        QREGS.clear()
+        CREGS.clear()
         input_str = get_input()
         instr_array = create_instr_array(input_str)
         print(instr_array)
@@ -39,10 +41,12 @@ def get_input():
                 if "(" in line and ")" in line:
                     line = line[0:line.index('(')]+line[line.index('('):line.index(')')].replace(' ', '')+line[line.index(')'):]
                 if "//" in line and ";" in line:
-                    if line[::-1].index("//") < line[::-1].index(";"): #if comment is before
+                    if line.index("//") > line.index(";"): #if comment is after
                         line = line[0:line.index(";")+1]+'\n'
+                    else:
+                        line = ""
                 elif "//" in line and ";" not in line:
-                    continue
+                    line = ""
                 input_str += line
         except FileNotFoundError:
             print("Invaild Input")

@@ -5,12 +5,27 @@ from qubit import Qubit
 
 QREGS = {}
 CREGS = {}
+
+CREGS_ALL_SHOTS = {}
 def main():
-    input_str = get_input()
-    instr_array = create_instr_array(input_str)
-    for instr in instr_array:
-        execute_instr(instr)
-        print(QREGS['q[0]'])
+    shots = 1024 #hard coded for now, will be a user input later
+    for shot in range(shots):
+        input_str = get_input()
+        instr_array = create_instr_array(input_str)
+        print(instr_array)
+        for instr in instr_array:
+            execute_instr(instr)
+            for key, value in QREGS.items():
+                print(key, ":", value)
+            for key, value in CREGS.items():
+                print(key, ":", value)
+        for key, value in CREGS.items():
+            try:
+                CREGS_ALL_SHOTS[key][value] += 1
+            except KeyError:
+                CREGS_ALL_SHOTS.update({key: [0, 0]})
+                CREGS_ALL_SHOTS[key][value] += 1
+        print(CREGS_ALL_SHOTS)
     return 0
 
 
@@ -44,33 +59,44 @@ def create_instr_array(input_str):
 
 def execute_instr(instr):
     supported_instrs = ['qreg', 'creg', 'u', 'id', 'x', 'h', 's', 'sdg', 'z', 't', 'tdg', 'q', 'qdg', 'measure']
-    operations = []
+    p = 0.2
     if instr[0][0] == 'u':
         theta, phi, lamb = parse_u_gate(instr[0])
         QREGS[instr[1]].applyUnitaryGate(theta, phi, lamb)
+        QREGS[instr[1]].applyNoisyGate(p)
     elif instr[0] == 'x':
         QREGS[instr[1]].applyXGate()
+        QREGS[instr[1]].applyNoisyGate(p)
     elif instr[0] == 'h':
         QREGS[instr[1]].applyHGate()
+        QREGS[instr[1]].applyNoisyGate(p)
     elif instr[0] == 's':
         QREGS[instr[1]].applySGate()
+        QREGS[instr[1]].applyNoisyGate(p)
     elif instr[0] == 'sdg':
         QREGS[instr[1]].applySdgGate()
+        QREGS[instr[1]].applyNoisyGate(p)
     elif instr[0] == 't':
         QREGS[instr[1]].applyTGate()
+        QREGS[instr[1]].applyNoisyGate(p)
     elif instr[0] == 'tdg':
         QREGS[instr[1]].applyTdgGate()
+        QREGS[instr[1]].applyNoisyGate(p)
     elif instr[0] == 'q':
         QREGS[instr[1]].applyQGate()
+        QREGS[instr[1]].applyNoisyGate(p)
     elif instr[0] == 'qdg':
         QREGS[instr[1]].applyQdgGate()
+        QREGS[instr[1]].applyNoisyGate(p)
     elif instr[0] == 'z':
         QREGS[instr[1]].applyZGate()
+        QREGS[instr[1]].applyNoisyGate(p)
     elif instr[0] == 'creg':
         CREGS.update({instr[1]: 0})
     elif instr[0] == 'qreg':
         QREGS.update({instr[1]: Qubit(1, 0)})
-    # ADD ALL GATES
+    elif instr[0] == 'measure':
+        CREGS[instr[3]] = QREGS[instr[1]].measureHV(1/np.sqrt(2))
     else:
         print("Invalid/Unsupported Instruction")
 
@@ -86,14 +112,6 @@ def parse_u_gate(gate):
     phi = gate_args[1]
     lamb = gate_args[2]
     return theta, phi, lamb
-
-
-def apply_u_gate(gate, qubit):
-    qubit.applyUnitaryGate(gate[0], gate[1], gate[2])
-
-
-def applyOperation(operation):
-    print(operation)
 
 
 if __name__ == '__main__':

@@ -44,31 +44,31 @@ class Qubit:
         self.alpha = complex(x0, y0)
         self.beta  = complex(x1, y1)
 
-    def prepare(self, alpha, beta, avgPhotonNumber):
-        if avgPhotonNumber < 0:
+    def prepare(self, alpha, beta, avgQubitNumber):
+        if avgQubitNumber < 0:
             raise InputError()
-        vac = Photon()
+        vac = Qubit()
         vac.prepareVacuum()
-        self.alpha = alpha * np.sqrt(avgPhotonNumber) + vac.alpha
-        self.beta  = beta  * np.sqrt(avgPhotonNumber) + vac.beta
+        self.alpha = alpha * np.sqrt(avgQubitNumber) + vac.alpha
+        self.beta  = beta  * np.sqrt(avgQubitNumber) + vac.beta
 
-    def prepareH(self, avgPhotonNumber):
-        self.prepare(1, 0, avgPhotonNumber)
+    def prepareH(self, avgQubitNumber):
+        self.prepare(1, 0, avgQubitNumber)
 
-    def prepareV(self, avgPhotonNumber):
-        self.prepare(0,1, avgPhotonNumber)
+    def prepareV(self, avgQubitNumber):
+        self.prepare(0,1, avgQubitNumber)
 
-    def prepareD(self, avgPhotonNumber):
-        self.prepare(1/np.sqrt(2),  1/np.sqrt(2), avgPhotonNumber)
+    def prepareD(self, avgQubitNumber):
+        self.prepare(1/np.sqrt(2),  1/np.sqrt(2), avgQubitNumber)
 
-    def prepareA(self, avgPhotonNumber):
-        self.prepare(1/np.sqrt(2), -1/np.sqrt(2), avgPhotonNumber)
+    def prepareA(self, avgQubitNumber):
+        self.prepare(1/np.sqrt(2), -1/np.sqrt(2), avgQubitNumber)
 
-    def prepareR(self, avgPhotonNumber):
-        self.prepare(1/np.sqrt(2),  1j/np.sqrt(2), avgPhotonNumber)
+    def prepareR(self, avgQubitNumber):
+        self.prepare(1/np.sqrt(2),  1j/np.sqrt(2), avgQubitNumber)
 
-    def prepareL(self, avgPhotonNumber):
-        self.prepare(1/np.sqrt(2), -1j/np.sqrt(2), avgPhotonNumber)
+    def prepareL(self, avgQubitNumber):
+        self.prepare(1/np.sqrt(2), -1j/np.sqrt(2), avgQubitNumber)
 
     def measureHV(self, probDarkCount):
         if probDarkCount < 0 or probDarkCount > 1:
@@ -76,17 +76,21 @@ class Qubit:
         threshold  = -0.5*np.log(1 - np.sqrt(1-probDarkCount))
         intensityH = abs(self.alpha)**2
         intensityV = abs(self.beta)**2
-        # The photon is absorbed by the detector:
+        # The qubit is absorbed by the detector:
         self.prepareVacuum()
         # The outcome is determined by threshold exceedances:
-        if intensityH <= threshold and intensityV <= threshold:
-            return "N" # no detection (invalid measurement)
-        elif intensityH > threshold and intensityV <= threshold:
-            return "H" # single H photon detected
-        elif intensityH <= threshold and intensityV > threshold:
-            return "V" # single V photon detected
+        if intensityH > intensityV:
+            return 0
         else:
-            return "M" # multiple detections (invalid measurement)
+            return 1
+        # if intensityH <= threshold and intensityV <= threshold:
+        #     return "N" # no detection (invalid measurement)
+        # elif intensityH > threshold and intensityV <= threshold:
+        #     return "0" # single H qubit detected
+        # elif intensityH <= threshold and intensityV > threshold:
+        #     return "1" # single V qubit detected
+        # else:
+        #     return "M" # multiple detections (invalid measurement)
 
     def measureDA(self, probDarkCount):
         a = self.alpha
@@ -184,9 +188,9 @@ class Qubit:
 
     def applyNoisyGate(self, p):
         # This operation acts as a depolarizing channel.
-        # p = 0 leaves the photon unchanged.
-        # p = 1 yields a completely random photon.
-        # 0 < p < 1 yields a partially random photon.
+        # p = 0 leaves the qubit unchanged.
+        # p = 1 yields a completely random qubit.
+        # 0 < p < 1 yields a partially random qubit.
         if p < 0 or p > 1:
             raise InputError
         theta = np.arccos(1 - 2*random.uniform(0,1)*p)
@@ -196,9 +200,9 @@ class Qubit:
 
     def applyAttenuation(self, r):
         # This operation acts as a partially reflecting beam splitter.
-        # r = 0 leaves the photon unchanged.
-        # r = 1 completely absorbs the photon, leaving a vacuum state.
-        # 0 < r < 1 partially attenuates the photon and adds some vacuum.
+        # r = 0 leaves the qubit unchanged.
+        # r = 1 completely absorbs the qubit, leaving a vacuum state.
+        # 0 < r < 1 partially attenuates the qubit and adds some vacuum.
         # r is the reflectivity.
         if r < 0 or r > 1:
             raise InputError

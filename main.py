@@ -73,7 +73,7 @@ def execute_instr(instr):
         QREGS[instr[1]].applyNoisyGate(p)
     elif instr[0] == 'h':
         QREGS[instr[1]].applyHGate()
-        QREGS[instr[1]].applyNoisyGate(p)
+        #QREGS[instr[1]].applyNoisyGate(p)
     elif instr[0] == 's':
         QREGS[instr[1]].applySGate()
         QREGS[instr[1]].applyNoisyGate(p)

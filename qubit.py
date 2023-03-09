@@ -79,18 +79,14 @@ class Qubit:
         # The qubit is absorbed by the detector:
         self.prepareVacuum()
         # The outcome is determined by threshold exceedances:
-        if intensityH > intensityV:
-            return 0
+        if intensityH <= threshold and intensityV <= threshold:
+            return random.randint(0,1) # no detection (invalid measurement)
+        elif intensityH > threshold and intensityV <= threshold:
+            return 0 # single H qubit detected
+        elif intensityH <= threshold and intensityV > threshold:
+            return 1 # single V qubit detected
         else:
-            return 1
-        # if intensityH <= threshold and intensityV <= threshold:
-        #     return "N" # no detection (invalid measurement)
-        # elif intensityH > threshold and intensityV <= threshold:
-        #     return "0" # single H qubit detected
-        # elif intensityH <= threshold and intensityV > threshold:
-        #     return "1" # single V qubit detected
-        # else:
-        #     return "M" # multiple detections (invalid measurement)
+            return random.randint(0,1) # multiple detections (invalid measurement)
 
     def measureDA(self, probDarkCount):
         a = self.alpha

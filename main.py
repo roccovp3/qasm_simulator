@@ -13,9 +13,10 @@ app = Flask(__name__)
 def index():
     output = compute.compute()
     print(STATIC_DIR)
+    parseCompute(output)
     return render_template("index.html", body=output)
 
-def parseCompute():
+def parseCompute(output):
     return
 
 

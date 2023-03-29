@@ -8,17 +8,17 @@
 <body>
     {{body}}
 </body>
-<form method="post">
-    <form>
-       <br>
+<form method="post" enctype = "multipart/form-data">
+    <br>
     <input type="number" name="shots" placeholder="Number of Shots" value="{{ request.form['shots'] }}"></input>
     <br>
     <br>
-    <textarea type="text" name="code" placeholder="Type QASM Code Here!" value="{{ request.form['code'] }}" rows="32" >{{ request.form['code'] }}</textarea>
+    <textarea type="text" name="code" placeholder="Type QASM Code Here!" value="{{ request.form['code'] }}" rows="32" cols="50">{{ code }}</textarea>
     <br>
     <br>
     <input type="submit" name="button" value="Calculate">
     <input type="submit" name="button" value="Export">
-    </form>
+    <input type="file" name="file">
+    <input type="submit" name="button" value="Import">
 </form>
 </html>

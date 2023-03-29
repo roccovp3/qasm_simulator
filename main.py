@@ -14,16 +14,24 @@ app = Flask(__name__)
 @app.route("/", methods=('GET', 'POST'))
 def index():
     output = ''
+    code = ''
     if request.method == 'POST' and request.form['button'] == "Calculate":
         output = compute.compute(int(request.form['shots']), request.form['code'])
     elif request.method == 'POST' and request.form['button'] == "Export":
-        file = open('export.qasm', 'w+')
+        file = open('export.qasm', 'w+', newline='')
         file.write(request.form['code'])
         file.close()
         return send_file('export.qasm')
+    elif request.method == 'POST' and request.form['button'] == "Import":
+        file = request.files['file']
+        file.save(file.filename)
+        file = open(file.filename)
+        code = file.read()
+    if code == '':
+        code = request.form['code']
     print(STATIC_DIR)
     parseCompute(output)
-    return render_template("index.html", body=output)
+    return render_template("index.html", body=output, code=code)
 
 def parseCompute(output):
     return

@@ -7,10 +7,10 @@ QREGS = {}
 CREGS = {}
 
 CREGS_ALL_SHOTS = {}
-def compute(shots):
+def compute(shots, code):
     #shots = 1024 #hard coded for now, will be a user input later
     CREGS_ALL_SHOTS.clear()
-    input_str = get_input()
+    input_str = get_input(code)
     for shot in range(shots):
         QREGS.clear()
         CREGS.clear()
@@ -32,27 +32,29 @@ def compute(shots):
     return CREGS_ALL_SHOTS;
 
 
-def get_input():
+def get_input(code):
     input_str = ""
-    print(sys.argv[1:])
-    for arg in sys.argv[1:]:
-        try:
-            file = open(arg, 'r')
-            for line in file.readlines():
-                if "(" in line and ")" in line:
-                    line = line[0:line.index('(')]+line[line.index('('):line.index(')')].replace(' ', '')+line[line.index(')'):]
-                if "//" in line and ";" in line:
-                    if line.index("//") > line.index(";"): #if comment is after
-                        line = line[0:line.index(";")+1]+'\n'
-                    else:
-                        line = ""
-                elif "//" in line and ";" not in line:
+    try:
+        input_str = code
+        input_str.replace('\n', '')
+        input_str.replace('\r', '')
+        input_str.split(';')
+        for line in input_str:
+            if "(" in line and ")" in line:
+                line = line[0:line.index('(')]+line[line.index('('):line.index(')')].replace(' ', '')+line[line.index(')'):]
+            if "//" in line and ";" in line:
+                if line.index("//") > line.index(";"): #if comment is after
+                    line = line[0:line.index(";")+1]+'\n'
+                else:
                     line = ""
-                input_str += line
-        except FileNotFoundError:
-            print("Invaild Input")
+            elif "//" in line and ";" not in line:
+                line = ""
+            input_str += line
+    except FileNotFoundError:
+        print("Invaild Input")
     print("Input String:", input_str)
     input_str = input_str.replace('\n', '')
+    file.close()
     return input_str
 
 

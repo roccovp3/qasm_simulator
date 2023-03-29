@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_file
 import compute
 import os
+import webbrowser
 
 
 TEMPLATE_DIR = os.path.abspath('templates')
@@ -12,7 +13,14 @@ app = Flask(__name__, template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR)
 app = Flask(__name__)
 @app.route("/", methods=('GET', 'POST'))
 def index():
-    output = compute.compute(int(request.form['shots']))
+    output = ''
+    if request.method == 'POST' and request.form['button'] == "Calculate":
+        output = compute.compute(int(request.form['shots']), request.form['code'])
+    elif request.method == 'POST' and request.form['button'] == "Export":
+        file = open('export.qasm', 'w+')
+        file.write(request.form['code'])
+        file.close()
+        return send_file('export.qasm')
     print(STATIC_DIR)
     parseCompute(output)
     return render_template("index.html", body=output)

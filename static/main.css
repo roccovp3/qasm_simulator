@@ -6,3 +6,6 @@ body{
 h1{
     color : darkblue;
 }
+input[type="number"]{
+    font-family: monospace;
+}

@@ -7,8 +7,8 @@ QREGS = {}
 CREGS = {}
 
 CREGS_ALL_SHOTS = {}
-def compute():
-    shots = 1024 #hard coded for now, will be a user input later
+def compute(shots):
+    #shots = 1024 #hard coded for now, will be a user input later
     CREGS_ALL_SHOTS.clear()
     input_str = get_input()
     for shot in range(shots):

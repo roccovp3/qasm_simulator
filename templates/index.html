@@ -10,7 +10,7 @@
 </body>
 <form method="post" enctype = "multipart/form-data">
     <br>
-    <input type="number" name="shots" placeholder="Number of Shots" value="{{ request.form['shots'] }}"></input>
+    <input type="number" name="shots" placeholder="Number of Shots" value="{{ request.form['shots'] }}">
     <br>
     <br>
     <textarea type="text" name="code" placeholder="Type QASM Code Here!" value="{{ request.form['code'] }}" rows="32" cols="50">{{ code }}</textarea>

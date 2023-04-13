@@ -9,8 +9,6 @@ STATIC_DIR = os.path.abspath('static')
 
 #app = Flask(__name__) # to make the app run without any
 app = Flask(__name__, template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR)
-
-app = Flask(__name__)
 @app.route("/", methods=('GET', 'POST'))
 def index():
     output = ''
@@ -27,8 +25,8 @@ def index():
         file.save(file.filename)
         file = open(file.filename)
         code = file.read()
-    if code == '':
-        code = request.form['code']
+    #if code == '': bad request from this...
+        #code = request.form['code']
     print(STATIC_DIR)
     parseCompute(output)
     return render_template("index.html", body=output, code=code)

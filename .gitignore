@@ -4,3 +4,7 @@ venv/*
 
 *.qasm
 !test.qasm
+
+*.docx
+
+!"Quantum Simulator Report.docx"

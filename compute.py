@@ -92,22 +92,28 @@ def execute_instr(instr):
         statevector = np.matmul(U, statevector)
     elif instr[0] == 'h':
         U = createGateMatrix(np.pi/2, 0, np.pi, instr)
-        print(statevector)
         statevector = U.dot(statevector)
     elif instr[0] == 's':
-        QREGS[instr[1]].applySGate()
+        U = createGateMatrix(0, 0, np.pi/2, instr)
+        statevector = U.dot(statevector)
     elif instr[0] == 'sdg':
-        QREGS[instr[1]].applySdgGate()
+        U = createGateMatrix(0, 0, -np.pi/2, instr)
+        statevector = U.dot(statevector)
     elif instr[0] == 't':
-        QREGS[instr[1]].applyTGate()
+        U = createGateMatrix(0, 0, np.pi/4, instr)
+        statevector = U.dot(statevector)
     elif instr[0] == 'tdg':
-        QREGS[instr[1]].applyTdgGate()
+        U = createGateMatrix(0, 0, -np.pi/4, instr)
+        statevector = U.dot(statevector)
     elif instr[0] == 'q':
-        QREGS[instr[1]].applyQGate()
+        U = createGateMatrix(np.pi/2, np.pi/2, np.pi, instr)
+        statevector = U.dot(statevector)
     elif instr[0] == 'qdg':
-        QREGS[instr[1]].applyQdgGate()
+        U = createGateMatrix(np.pi/2, 0, np.pi/2, instr)
+        statevector = U.dot(statevector)
     elif instr[0] == 'z':
-        QREGS[instr[1]].applyZGate()
+        U = createGateMatrix(0, np.pi, 0, instr)
+        statevector = U.dot(statevector)
     elif instr[0] == 'creg':
         CREGS.update({instr[1]: 0})
     elif instr[0] == 'qreg':

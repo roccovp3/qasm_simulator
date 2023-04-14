@@ -2,17 +2,25 @@
 import sys
 import numpy as np
 from qubit import Qubit
+import math
+import random
+import re
 
 QREGS = {}
 CREGS = {}
 
 CREGS_ALL_SHOTS = {}
+statevector = np.array([1])
+
 def compute(shots, code):
+    global statevector
+    statevector = [1]
     CREGS_ALL_SHOTS.clear()
     input_str = get_input(code)
     for shot in range(shots):
         QREGS.clear()
         CREGS.clear()
+        statevector = [1]
         instr_array = create_instr_array(input_str)
         #print(instr_array)
         for instr in instr_array:
@@ -63,19 +71,29 @@ def get_input(code):
 
 def create_instr_array(input_str):
     instr_array = input_str.split(";")
-    instr_array = [x.strip().split(' ') for x in instr_array if (x != '')]
+    instr_array = [re.split(',|\s', x.strip()) for x in instr_array]
+    for i, x in enumerate(instr_array):
+        instr_array[i] = [y for y in x if y != '']
+    for x in instr_array:
+        if x == []:
+            instr_array.remove(x)
+    print(instr_array)
     return instr_array
 
-
 def execute_instr(instr):
-    supported_instrs = ['qreg', 'creg', 'u', 'id', 'x', 'h', 's', 'sdg', 'z', 't', 'tdg', 'q', 'qdg', 'measure']
+    supported_instrs = ['qreg', 'creg', 'u', 'id', 'x', 'h', 's', 'sdg', 'z', 't', 'tdg', 'q', 'qdg', 'measure', 'cx']
+    global statevector
     if instr[0][0] == 'u':
         theta, phi, lamb = parse_u_gate(instr[0])
-        QREGS[instr[1]].applyUnitaryGate(theta, phi, lamb)
+        U = createGateMatrix(theta, phi, lamb, instr)
+        statevector = np.matmul(U, statevector)
     elif instr[0] == 'x':
-        QREGS[instr[1]].applyXGate()
+        U = createGateMatrix(np.pi, 0, np.pi, instr)
+        statevector = np.matmul(U, statevector)
     elif instr[0] == 'h':
-        QREGS[instr[1]].applyHGate()
+        U = createGateMatrix(np.pi/2, 0, np.pi, instr)
+        print(statevector)
+        statevector = U.dot(statevector)
     elif instr[0] == 's':
         QREGS[instr[1]].applySGate()
     elif instr[0] == 'sdg':
@@ -94,11 +112,42 @@ def execute_instr(instr):
         CREGS.update({instr[1]: 0})
     elif instr[0] == 'qreg':
         QREGS.update({instr[1]: Qubit(1, 0)})
+        statevector = np.kron(statevector, [1,0])
     elif instr[0] == 'measure':
-        CREGS[instr[3]] = QREGS[instr[1]].measureHV(1/np.sqrt(2))
+        threshold  = -0.5*np.log(1 - np.sqrt(1-1/np.sqrt(2)))
+        enumQREGS = {}
+        for i, (k,v) in enumerate(QREGS.items()):
+            enumQREGS = {k:i}
+        p0 = 0
+        p1 = 0
+        print(statevector)
+        for i in range(0, len(statevector)):
+            if ((i//(2**enumQREGS[instr[1]])) % 2) == 0:
+                p0 += abs(statevector[i])**2
+        p1 = 1 - p0
+        print(p0)
+        if p0 <= threshold and p1 <= threshold:
+            CREGS[instr[3]] = random.randint(0,1) # no detection (invalid measurement)
+        elif p0 > threshold and p1 <= threshold:
+            CREGS[instr[3]] = 0 # single H qubit detected
+        elif p0 <= threshold and p1 > threshold:
+            CREGS[instr[3]] = 1 # single V qubit detected
+        else:
+            CREGS[instr[3]] = random.randint(0,1) # multiple detections (invalid measurement)
+
+    #elif instr[0] == 'cx': #CNOT
+        # control = [QREGS[instr[1]].alpha, QREGS[instr[1]].beta]
+        # tensor_prod = np.kron(control, target)
+        # cnot = np.array([[1,0,0,0],
+        #         [0,1,0,0],
+        #         [0,0,0,1],
+        #         [0,0,1,0]])
+        # result = np.matmul(cnot, tensor_prod)
+        # print(tensor_prod)
+        # print(result)
+
     else:
         print("Invalid/Unsupported Instruction")
-
 
 def parse_u_gate(gate):
     # parse
@@ -112,4 +161,21 @@ def parse_u_gate(gate):
     lamb = gate_args[2]
     return theta, phi, lamb
 
-
+def createGateMatrix(theta, phi, lamb, instr):
+    U = [[0, 0], [0, 0]]
+    z1 = np.exp(1j * phi)
+    z2 = -np.exp(1j * lamb)
+    z3 = np.exp(1j * (lamb + phi))
+    U[0][0] = np.cos(theta / 2)
+    U[1][0] = np.sin(theta / 2) * z1
+    U[0][1] = np.sin(theta / 2) * z2
+    U[1][1] = np.cos(theta / 2) * z3
+    u = np.array([1])
+    for qubit in QREGS.keys():
+        print(qubit)
+        if qubit == instr[1]:
+            u = np.kron(u, U)
+        else:
+            u = np.kron(u, np.array([[1, 0], [0, 1]]))
+    print(u)
+    return u

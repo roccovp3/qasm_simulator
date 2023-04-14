@@ -8,27 +8,28 @@ CREGS = {}
 
 CREGS_ALL_SHOTS = {}
 def compute(shots, code):
-    #shots = 1024 #hard coded for now, will be a user input later
     CREGS_ALL_SHOTS.clear()
     input_str = get_input(code)
     for shot in range(shots):
         QREGS.clear()
         CREGS.clear()
         instr_array = create_instr_array(input_str)
-        print(instr_array)
+        #print(instr_array)
         for instr in instr_array:
             execute_instr(instr)
             for key, value in QREGS.items():
-                print(key, ":", value)
+                continue
+                #print(key, ":", value)
             for key, value in CREGS.items():
-                print(key, ":", value)
+                continue
+                #print(key, ":", value)
         for key, value in CREGS.items():
             try:
                 CREGS_ALL_SHOTS[key][value] += 1
             except KeyError:
                 CREGS_ALL_SHOTS.update({key: [0, 0]})
                 CREGS_ALL_SHOTS[key][value] += 1
-        print(CREGS_ALL_SHOTS)
+        #print(CREGS_ALL_SHOTS)
     return CREGS_ALL_SHOTS;
 
 
@@ -36,26 +37,28 @@ def get_input(code):
     input_str = ""
     try:
         input_str = code
-        input_str.replace('\n', '')
-        input_str.replace('\r', '')
-        input_str.split(';')
-        for line in input_str:
+        input_str_no_comments = ''
+        for line in input_str.split('\n'):
             if "(" in line and ")" in line:
-                line = line[0:line.index('(')]+line[line.index('('):line.index(')')].replace(' ', '')+line[line.index(')'):]
+                line = line[0:line.index('(')] + line[line.index('('):line.index(')')].replace(' ', '') + line[
+                                                                                                          line.index(
+                                                                                                              ')'):]
             if "//" in line and ";" in line:
-                if line.index("//") > line.index(";"): #if comment is after
-                    line = line[0:line.index(";")+1]+'\n'
+                if line.index("//") > line.index(";"):  # if comment is after
+                    line = line[0:(len(line) - 1 - line[::-1].index(';')) + 1] + '\n'
                 else:
                     line = ""
             elif "//" in line and ";" not in line:
                 line = ""
-            input_str += line
+            input_str_no_comments += line
+        input_str_no_comments = input_str_no_comments.replace('\n', '')
+        input_str_no_comments = input_str_no_comments.replace('\r', '')
+        print(input_str_no_comments)
     except FileNotFoundError:
         print("Invaild Input")
     print("Input String:", input_str)
-    input_str = input_str.replace('\n', '')
-    file.close()
-    return input_str
+
+    return input_str_no_comments
 
 
 def create_instr_array(input_str):

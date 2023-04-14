@@ -123,7 +123,7 @@ def execute_instr(instr):
         threshold  = -0.5*np.log(1 - np.sqrt(1-1/np.sqrt(2)))
         enumQREGS = {}
         for i, (k,v) in enumerate(QREGS.items()):
-            enumQREGS = {k:i}
+            enumQREGS[k] = i
         p0 = 0
         p1 = 0
         print(statevector)
@@ -141,16 +141,23 @@ def execute_instr(instr):
         else:
             CREGS[instr[3]] = random.randint(0,1) # multiple detections (invalid measurement)
 
-    #elif instr[0] == 'cx': #CNOT
-        # control = [QREGS[instr[1]].alpha, QREGS[instr[1]].beta]
-        # tensor_prod = np.kron(control, target)
-        # cnot = np.array([[1,0,0,0],
-        #         [0,1,0,0],
-        #         [0,0,0,1],
-        #         [0,0,1,0]])
-        # result = np.matmul(cnot, tensor_prod)
-        # print(tensor_prod)
-        # print(result)
+    #https://quantumcomputing.stackexchange.com/questions/5179/how-to-construct-matrix-of-regular-and-flipped-2-qubit-cnot
+    elif instr[0] == 'cx': #CNOT
+        cnot0 = [1]
+        cnot1 = [1]
+        for qubit in QREGS.keys():
+            print(qubit)
+            if qubit == instr[1]:
+                cnot0 = np.kron(cnot0, np.array([[1, 0], [0, 0]]))
+                cnot1 = np.kron(cnot1, np.array([[0, 0], [0, 1]]))
+            elif qubit == instr[2]:
+                cnot0 = np.kron(cnot0, np.eye(2))
+                cnot1 = np.kron(cnot1, np.array([[0, 1], [1, 0]]))
+            else:
+                cnot1 = np.kron(cnot1, np.eye(2))
+                cnot0 = np.kron(cnot0, np.eye(2))
+        cnot = cnot0 + cnot1
+        statevector = cnot.dot(statevector)
 
     else:
         print("Invalid/Unsupported Instruction")

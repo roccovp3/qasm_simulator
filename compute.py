@@ -61,7 +61,7 @@ def get_input(code):
             input_str_no_comments += line
         input_str_no_comments = input_str_no_comments.replace('\n', '')
         input_str_no_comments = input_str_no_comments.replace('\r', '')
-        print(input_str_no_comments)
+        #print(input_str_no_comments)
     except FileNotFoundError:
         print("Invaild Input")
     print("Input String:", input_str)
@@ -77,7 +77,7 @@ def create_instr_array(input_str):
     for x in instr_array:
         if x == []:
             instr_array.remove(x)
-    print(instr_array)
+    #print(instr_array)
     return instr_array
 
 def execute_instr(instr):
@@ -118,20 +118,20 @@ def execute_instr(instr):
         CREGS.update({instr[1]: 0})
     elif instr[0] == 'qreg':
         QREGS.update({instr[1]: Qubit(1, 0)})
-        statevector = np.kron(statevector, [1,0])
+        statevector = np.kron([1,0], statevector)
     elif instr[0] == 'measure':
-        threshold  = -0.5*np.log(1 - np.sqrt(1-1/np.sqrt(2)))
+        threshold = -0.5*np.log(1 - np.sqrt(1-1/np.sqrt(2)))
         enumQREGS = {}
         for i, (k,v) in enumerate(QREGS.items()):
             enumQREGS[k] = i
         p0 = 0
         p1 = 0
-        print(statevector)
+        #print(statevector)
         for i in range(0, len(statevector)):
             if ((i//(2**enumQREGS[instr[1]])) % 2) == 0:
                 p0 += abs(statevector[i])**2
         p1 = 1 - p0
-        print(p0)
+        #print(p0)
         if p0 <= threshold and p1 <= threshold:
             CREGS[instr[3]] = random.randint(0,1) # no detection (invalid measurement)
         elif p0 > threshold and p1 <= threshold:
@@ -146,7 +146,7 @@ def execute_instr(instr):
         cnot0 = [1]
         cnot1 = [1]
         for qubit in QREGS.keys():
-            print(qubit)
+            #print(qubit)
             if qubit == instr[1]:
                 cnot0 = np.kron(cnot0, np.array([[1, 0], [0, 0]]))
                 cnot1 = np.kron(cnot1, np.array([[0, 0], [0, 1]]))
@@ -185,10 +185,10 @@ def createGateMatrix(theta, phi, lamb, instr):
     U[1][1] = np.cos(theta / 2) * z3
     u = np.array([1])
     for qubit in QREGS.keys():
-        print(qubit)
+        #print(qubit)
         if qubit == instr[1]:
             u = np.kron(u, U)
         else:
             u = np.kron(u, np.array([[1, 0], [0, 1]]))
-    print(u)
+    #print(u)
     return u

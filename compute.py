@@ -83,7 +83,7 @@ def create_instr_array(input_str):
 def execute_instr(instr):
     supported_instrs = ['qreg', 'creg', 'u', 'id', 'x', 'h', 's', 'sdg', 'z', 't', 'tdg', 'q', 'qdg', 'measure', 'cx']
     global statevector
-    print("before", statevector)
+    #print("before", statevector)
     if instr[0][0] == 'u':
         theta, phi, lamb = parse_u_gate(instr[0])
         U = createGateMatrix(theta, phi, lamb, instr)
@@ -171,7 +171,7 @@ def execute_instr(instr):
 
     else:
         print("Invalid/Unsupported Instruction")
-    print("after", statevector)
+    #print("after", statevector)
 
 def parse_u_gate(gate):
     # parse

@@ -8,3 +8,5 @@ venv/
 *.docx
 
 !"Quantum Simulator Report.docx"
+
+statevector.png

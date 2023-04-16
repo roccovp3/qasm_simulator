@@ -45,8 +45,8 @@ def graphStateVector():
         displayvector[i] = compute.statevector[int((('{0:0'+str(int(math.log2(len(compute.statevector))))+'b}').format(i))[::-1],2)]
     # creating the bar plot
     plt.bar(states, [abs(x) for x in displayvector], color='blue', width=0.9)
-    plt.tick_params(axis='x', which='major', labelsize=12, rotation=45)
-    plt.xticks(ha="right")
+    plt.tick_params(axis='x', which='major', labelsize=12, rotation=90)
+    #plt.xticks(ha="right")
     plt.xlabel("Computational Basis States")
     plt.ylabel("Amplitude")
     plt.ylim(0,1)

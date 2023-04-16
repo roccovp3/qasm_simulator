@@ -83,6 +83,7 @@ def create_instr_array(input_str):
 def execute_instr(instr):
     supported_instrs = ['qreg', 'creg', 'u', 'id', 'x', 'h', 's', 'sdg', 'z', 't', 'tdg', 'q', 'qdg', 'measure', 'cx']
     global statevector
+    print("before", statevector)
     if instr[0][0] == 'u':
         theta, phi, lamb = parse_u_gate(instr[0])
         U = createGateMatrix(theta, phi, lamb, instr)
@@ -120,7 +121,6 @@ def execute_instr(instr):
         QREGS.update({instr[1]: Qubit(1, 0)})
         statevector = np.kron([1,0], statevector)
     elif instr[0] == 'measure':
-        threshold = -0.5*np.log(1 - np.sqrt(1-1/np.sqrt(2)))
         enumQREGS = {}
         for i, (k,v) in enumerate(QREGS.items()):
             enumQREGS[k] = i
@@ -128,18 +128,28 @@ def execute_instr(instr):
         p1 = 0
         #print(statevector)
         for i in range(0, len(statevector)):
-            if ((i//(2**enumQREGS[instr[1]])) % 2) == 0:
+            if ((i//(2**(len(enumQREGS)-enumQREGS[instr[1]]))) % 2) == 0:
                 p0 += abs(statevector[i])**2
         p1 = 1 - p0
         #print(p0)
-        if p0 <= threshold and p1 <= threshold:
-            CREGS[instr[3]] = random.randint(0,1) # no detection (invalid measurement)
-        elif p0 > threshold and p1 <= threshold:
-            CREGS[instr[3]] = 0 # single H qubit detected
-        elif p0 <= threshold and p1 > threshold:
-            CREGS[instr[3]] = 1 # single V qubit detected
+        if abs(p1 - p0) < 0.02:
+            CREGS[instr[3]] = random.randint(0,1)
+        elif p0 > p1:
+            CREGS[instr[3]] = 0
         else:
-            CREGS[instr[3]] = random.randint(0,1) # multiple detections (invalid measurement)
+            CREGS[instr[3]] = 1
+
+        measurementmat = [1]
+        for qubit in QREGS.keys():
+            # print(qubit)
+            if qubit == instr[1]:
+                if CREGS[instr[3]]:
+                    measurementmat = np.kron(measurementmat, np.array([[0, 0], [0, 1]]))
+                else:
+                    measurementmat = np.kron(measurementmat, np.array([[1, 0], [0, 0]]))
+            else:
+                measurementmat = np.kron(measurementmat, np.eye(2))
+        statevector = measurementmat.dot(statevector)/np.linalg.norm(measurementmat.dot(statevector))
 
     #https://quantumcomputing.stackexchange.com/questions/5179/how-to-construct-matrix-of-regular-and-flipped-2-qubit-cnot
     elif instr[0] == 'cx': #CNOT
@@ -161,6 +171,7 @@ def execute_instr(instr):
 
     else:
         print("Invalid/Unsupported Instruction")
+    print("after", statevector)
 
 def parse_u_gate(gate):
     # parse

@@ -128,7 +128,7 @@ def execute_instr(instr):
         p1 = 0
         #print(statevector)
         for i in range(0, len(statevector)):
-            if ((i//(2**(len(enumQREGS)-enumQREGS[instr[1]]))) % 2) == 0:
+            if (('{0:0'+str(int(math.log2(len(statevector))))+'b}').format(i))[enumQREGS[instr[1]]] == '0':
                 p0 += abs(statevector[i])**2
         p1 = 1 - p0
         #print(p0)

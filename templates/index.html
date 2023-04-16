@@ -13,7 +13,7 @@
     <input type="number" name="shots" placeholder="Number of Shots (Default: 1024)" value="{{ request.form['shots'] }}">
     <br>
     <br>
-    <textarea type="text" name="code" placeholder="Type QASM Code Here!" value="{{ request.form['code'] }}" rows="30" cols="50">{{ code }}</textarea>
+    <textarea type="text" name="code" placeholder="Type QASM Code Here!" value="{{ request.form['code'] }}" rows="26" cols="50">{{ code }}</textarea>
     <br>
     <br>
     <input type="submit" name="button" value="Calculate">
@@ -21,5 +21,6 @@
     <input type="file" name="file">
     <input type="submit" name="button" value="Import">
 </form>
+<br>
 <img src="{{ url_for('static', filename='statevector.png') }}" alt="Statevector Graph">
 </html>

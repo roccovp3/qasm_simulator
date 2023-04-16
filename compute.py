@@ -132,7 +132,7 @@ def execute_instr(instr):
                 p0 += abs(statevector[i])**2
         p1 = 1 - p0
         #print(p0)
-        if abs(p1 - p0) < 0.02:
+        if abs(p1 - p0) < 0.00002:
             CREGS[instr[3]] = random.randint(0,1)
         elif p0 > p1:
             CREGS[instr[3]] = 0
@@ -143,7 +143,7 @@ def execute_instr(instr):
         for qubit in QREGS.keys():
             # print(qubit)
             if qubit == instr[1]:
-                if CREGS[instr[3]]:
+                if p0 + 0.00002 < p1:
                     measurementmat = np.kron(measurementmat, np.array([[0, 0], [0, 1]]))
                 else:
                     measurementmat = np.kron(measurementmat, np.array([[1, 0], [0, 0]]))
